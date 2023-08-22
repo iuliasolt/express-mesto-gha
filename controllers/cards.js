@@ -81,11 +81,10 @@ const dislikeCard = (req, res) => {
       return res.status(200).send(card);
     })
     .catch((e) => {
-      if (e.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Invalid Date' });
-      } else {
-        res.status(SERVER_ERROR).send({ message: 'Server Error' });
+      if (e.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({ message: 'Invalid ID' });
       }
+      return res.status(SERVER_ERROR).send({ message: 'Server Error' });
     });
 };
 
