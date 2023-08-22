@@ -10,7 +10,7 @@ const createCard = (req, res) => {
       if (card === null) {
         return res.status(NOT_FOUND).send({ message: 'User not found' });
       }
-      return res.status(200).send(card);
+      return res.status(201).send(card);
     })
     .catch((e) => {
       if (e.name === 'ValidationError') {
@@ -36,14 +36,13 @@ const deleteCard = (req, res) => {
       if (card === null) {
         return res.status(NOT_FOUND).send({ message: 'User not found' });
       }
-      return res.status(201).send(card);
+      return res.status(200).send(card);
     })
     .catch((e) => {
-      if (e.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Invalid Date' });
-      } else {
-        res.status(SERVER_ERROR).send({ message: 'Server Error' });
+      if (e.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({ message: 'Invalid ID' });
       }
+      return res.status(SERVER_ERROR).send({ message: 'Server Error' });
     });
 };
 
@@ -52,7 +51,7 @@ const likeCard = (req, res) => {
     .findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     )
     .then((card) => {
       if (card === null) {
@@ -61,11 +60,10 @@ const likeCard = (req, res) => {
       return res.status(201).send(card);
     })
     .catch((e) => {
-      if (e.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Invalid Date' });
-      } else {
-        res.status(SERVER_ERROR).send({ message: 'Server Error' });
+      if (e.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({ message: 'Invalid ID' });
       }
+      return res.status(SERVER_ERROR).send({ message: 'Server Error' });
     });
 };
 
@@ -74,13 +72,13 @@ const dislikeCard = (req, res) => {
     .findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true }
+      { new: true },
     )
     .then((card) => {
       if (card === null) {
         return res.status(NOT_FOUND).send({ message: 'User not found' });
       }
-      return res.status(201).send(card);
+      return res.status(200).send(card);
     })
     .catch((e) => {
       if (e.name === 'ValidationError') {

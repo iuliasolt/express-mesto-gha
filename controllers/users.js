@@ -32,7 +32,7 @@ const updateProfile = (req, res) => {
     .findByIdAndUpdate(
       req.user._id,
       { name, about },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     )
     .then((user) => {
       if (user === null) {
@@ -41,10 +41,11 @@ const updateProfile = (req, res) => {
       return res.status(200).send(user);
     })
     .catch((e) => {
-      if (e.name === 'CastError') {
-        return res.status(BAD_REQUEST).send({ message: 'Invalid ID' });
+      if (e.name === 'ValidationError') {
+        res.status(BAD_REQUEST).send({ message: 'Invalid Date' });
+      } else {
+        res.status(SERVER_ERROR).send({ message: 'Server Error' });
       }
-      return res.status(SERVER_ERROR).send({ message: 'Server Error' });
     });
 };
 
@@ -54,7 +55,7 @@ const updateAvatar = (req, res) => {
     .findByIdAndUpdate(
       req.user._id,
       { avatar },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     )
     .then((user) => {
       if (user === null) {
