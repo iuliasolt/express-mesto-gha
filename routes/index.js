@@ -1,13 +1,13 @@
 const router = require('express').Router();
 const userRouter = require('./users');
 const cardRouter = require('./cards');
-const { NOT_FOUND } = require('../utils/utils');
+const NotFound = require('../errors/NotFoundError');
 
 router.use(userRouter);
 router.use(cardRouter);
 
-router.use((req, res) => {
-  res.status(NOT_FOUND).send({ message: 'User not found' });
+router.use((req, res, next) => {
+  next(new NotFound('Запрашиваемая страница не найдена'));
 });
 
 module.exports = router;
