@@ -71,40 +71,27 @@ const updateAvatar = (req, res, next) => {
     .catch(next);
 };
 
-const getCurrentUser = (req, res, next) => {
-  userModel.findById(req.user._id)
-    .onFail(() => {
-      throw new NotFound('Пользователь не найден');
-    })
-    .then((user) => res.status(200).send({ user }))
-    .catch((e) => {
-      if (e.name === 'CastError') {
-        throw new BadRequest('Переданы некорректные данные');
-      } else if (e.message === 'NotFound') {
-        throw new NotFound('Пользователь не найден');
-      }
-    })
-    .catch(next);
-};
-
 const createUser = (req, res, next) => {
   const {
-    name, about, avatar, email,
+    name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hash(req.body.password, 10)
-    .then((hash) => {
-      userModel.create({
-        name, about, avatar, email, password: hash,
-      });
-    })
+  bcrypt.hash(password, 10)
+    .then((hash) => userModel.create({
+      name, about, avatar, email, password: hash,
+    }))
     .then((user) => res.status(201).send(user))
     .catch((e) => {
       if (e.name === 'ValidationError') {
-        throw new BadRequest('Переданы некорректные данные');
+        next(new BadRequest('Переданы некорректные данные'));
       } else if (e.code === 11000) {
-        throw new ConflictError('Пользователь с таким email уже существует');
-      }
-    })
+        next(new ConflictError('Пользователь с таким email уже существует'));
+      } else next(e);
+    });
+};
+
+const getCurrentUser = (req, res, next) => {
+  userModel.findById(req.user._id)
+    .then((user) => res.send(user))
     .catch(next);
 };
 
