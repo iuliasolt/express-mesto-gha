@@ -4,6 +4,7 @@ const userModel = require('../models/user');
 const BadRequest = require('../errors/BadRequest');
 const ConflictError = require('../errors/ConflictError');
 const NotFound = require('../errors/NotFoundError');
+const AuthError = require('../errors/AuthError');
 
 const getUsers = (req, res, next) => {
   userModel
@@ -79,7 +80,9 @@ const createUser = (req, res, next) => {
     .then((hash) => userModel.create({
       name, about, avatar, email, password: hash,
     }))
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(201).send({
+      name: user.name, about: user.about, avatar: user.avatar, email: user.email, _id: user._id,
+    }))
     .catch((e) => {
       if (e.name === 'ValidationError') {
         next(new BadRequest('Переданы некорректные данные'));
@@ -91,7 +94,12 @@ const createUser = (req, res, next) => {
 
 const getCurrentUser = (req, res, next) => {
   userModel.findById(req.user._id)
-    .then((user) => res.send(user))
+    .then((user) => res.status(200).send({
+      name: user.name, about: user.about, avatar: user.avatar, email: user.email, _id: user._id,
+    }))
+    .catch(() => {
+      throw new AuthError('Необходима авторизация');
+    })
     .catch(next);
 };
 

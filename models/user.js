@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
   },
   about: {
     type: String,
-    default: 'Исследователь океана',
+    default: 'Исследователь',
     minlength: 2,
     maxlength: 30,
   },
@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
     select: false,
     minlength: 8,
   },
-});
+}, { versionKey: false });
 
 // eslint-disable-next-line func-names
 userSchema.statics.findUserByCredentials = function (email, password) {
