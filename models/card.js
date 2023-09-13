@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const isUrl = require('validator/lib/isURL');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -12,8 +11,11 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Поле "link" должно быть заполнено'],
     validate: {
-      validator: (url) => isUrl(url),
-      message: 'Некорректный URL',
+      validator(v) {
+        const urlRegex = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=[\]]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=[\]]*)$/;
+        return urlRegex.test(v);
+      },
+      message: (props) => `${props.value}  - неправильный формат ссылки!`,
     },
   },
   owner: {
@@ -21,11 +23,15 @@ const cardSchema = new mongoose.Schema({
     ref: 'user',
     required: [true, 'Поле "owner" должно быть заполнено'],
   },
-  likes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
+  likes: {
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+      },
+    ],
     default: [],
-  }],
+  },
   createAt: {
     type: Date,
     default: Date.now,

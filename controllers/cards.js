@@ -7,7 +7,7 @@ const NotFound = require('../errors/NotFoundError');
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
-  return cardModel
+  cardModel
     .create({ name, link, owner })
     .then((card) => res.status(200).send({ data: card }))
     .catch((e) => {
@@ -26,8 +26,7 @@ const getCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  cardModel
-    .findById(req.prams.cardId)
+  cardModel.findById(req.params.cardId)
     .orFail()
     .then((card) => {
       if (String(card.owner) !== req.user._id) {
@@ -44,10 +43,10 @@ const deleteCard = (req, res, next) => {
     })
     .catch((e) => {
       if (e instanceof mongoose.Error.DocumentNotFoundError) {
-        return next(new NotFound('Карточки с переданным _id не существует.', e.name, e.message));
+        return next(new NotFound('Карточки с переданным _id не существует'));
       }
       if (e instanceof mongoose.Error.CastError) {
-        return next(new BadRequest('Некорректный формат _id.', e.name, e.message));
+        return next(new BadRequest('Некорректный формат _id'));
       }
       return next(e);
     });
@@ -66,10 +65,10 @@ const likeCard = (req, res, next) => {
     })
     .catch((e) => {
       if (e instanceof mongoose.Error.DocumentNotFoundError) {
-        return next(new NotFound('Карточки с переданным _id не существует.', e.name, e.message));
+        return next(new NotFound('Карточки с переданным _id не существует'));
       }
       if (e instanceof mongoose.Error.CastError) {
-        return next(new BadRequest('Некорректный формат _id.', e.name, e.message));
+        return next(new BadRequest('Некорректный формат _id'));
       }
       return next(e);
     });
@@ -86,10 +85,10 @@ const dislikeCard = (req, res, next) => {
     .then((card) => res.status(200).send({ data: card }))
     .catch((e) => {
       if (e instanceof mongoose.Error.DocumentNotFoundError) {
-        return next(new NotFound('Карточки с переданным _id не существует.', err.name, err.message));
+        return next(new NotFound('Карточки с переданным _id не существует'));
       }
       if (e instanceof mongoose.Error.CastError) {
-        return next(new BadRequest('Некорректный формат _id.', err.name, err.message));
+        return next(new BadRequest('Некорректный формат _id'));
       }
       return next(e);
     });
