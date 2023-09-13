@@ -16,12 +16,11 @@ const getUsers = (req, res, next) => {
 };
 
 const getUserById = (req, res, next) => {
-  userModel
-    .findById(req.params.userId)
+  userModel.findById(req.params.userId)
     .orFail()
     .then((user) => res.status(200).send({ data: user }))
     .catch((e) => {
-      if (e instanceof mongoose.Error.DocumentNotFound) {
+      if (e instanceof mongoose.Error.DocumentNotFoundError) {
         return next(new NotFound('Пользователь по указанному id не найден'));
       }
       if (e instanceof mongoose.Error.CastError) {
